@@ -27,7 +27,8 @@ def plotcarriergraph(allcarrierdata):
     plt.plot(xvals, yvals, 'xr')
     plt.ylabel("Fullness (%)", fontsize=14)
     plt.title("Fullness of all possible flights found on this route \n", fontsize=20)
-    plt.xticks(np.arange(0,len(carriers)), carriers, rotation=30, fontsize=12)
+    plt.xlim(0, len(carriers))
+    plt.xticks(np.arange(0.5,len(carriers)+0.5), carriers, rotation=30, fontsize=12)
     fig.savefig('CarrierFig.jpg', dpi=300, bbox_inches='tight')    
     return 0
 
