@@ -12,6 +12,10 @@ import datetime
 st.write("""
 ## Airline Fullness (Load Factor) Prediction App
 """)
+st.write("""
+Don\'t get cramped, let us help predict how full your flight will be. Just choose your origin, destination, \
+month of flight, and (optionally) the carrier and we will let you know how full to expect your flight to be!
+""")
 
 def plotcarriergraph(allcarrierdata):
     xvals=[]
