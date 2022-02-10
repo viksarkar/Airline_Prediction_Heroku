@@ -8,8 +8,6 @@ import datetime
 
 st.write("""
 ## Airline Fullness (Load Factor) Prediction App
-""")
-st.write("""
 Don\'t get cramped, let us help predict how full your flight will be. Just choose your origin, destination, \
 month of flight, and (optionally) the carrier and we will let you know how full to expect your flight to be!
 """)
@@ -29,7 +27,7 @@ def plotcarriergraph(allcarrierdata):
     plt.ylabel("Fullness (%)", fontsize=14)
     plt.title("Fullness of all possible flights found on this route \n", fontsize=20)
     plt.xlim(0, len(carriers))
-    plt.xticks(np.arange(0.5,len(carriers)+0.5), carriers, rotation=30, fontsize=12)
+    plt.xticks(np.arange(0.5,len(carriers)+0.5), carriers, rotation=90, fontsize=12)
     fig.savefig('CarrierFig.jpg', dpi=300, bbox_inches='tight')    
     return 0
 
@@ -76,7 +74,7 @@ else:
              carrier_choice,'.')
 
 encoder = pickle.load(open('OneHotEncoder.pkl', 'rb'))
-rfr = pickle.load(open('Load_Factor_SVR_Model.pkl', 'rb'))
+rfr = pickle.load(open('RFR_Model.pkl', 'rb'))
 
 if numflights == 0:
     image_hyperlink = 'http://www.gcmap.com/map?P='+origin_choice+'-'+dest_choice+'&MS=bm&MR=540&MX=540x540&PM=b:disc7%2b%22%25t%25+%28N%22'
@@ -92,11 +90,14 @@ elif ((numflights != 0) and (carrier_choice!='No Selection') and (numflightssing
                                                     "Description": "Aircraft Type",\
                                                     "DEPARTURES_SCHEDULED": "No. of Flights"})
     plotcarriergraph(allcarrierdata)
-    col1, col2 = st.columns(2)
+    st.image('CarrierFig.jpg', use_column_width=True)
+    # col1, col2 = st.columns(2)
     image_hyperlink = 'http://www.gcmap.com/map?P='+origin_choice+'-'+dest_choice+'&MS=bm&MR=540&MX=540x540&PM=b:disc7%2b%22%25t%25+%28N%22'
-    col1.image(image_hyperlink, use_column_width=True)
-    col1.write('Map source : www.gcmap.com')
-    col2.image('CarrierFig.jpg', use_column_width=True)
+    st.image(image_hyperlink, width=300)
+    st.write('Map source : www.gcmap.com')
+    # col1.image(image_hyperlink, use_column_width=True)
+    # col1.write('Map source : www.gcmap.com')
+    # col2.image('CarrierFig.jpg', use_column_width=True)
 elif ((numflights != 0) and (carrier_choice!='No Selection') and (numflightssinglecarrier!=0)):
     X = encoder.transform(allcarrierdata)
     planetypes = pd.read_csv('L_AIRCRAFT_TYPE.csv')
@@ -113,11 +114,14 @@ elif ((numflights != 0) and (carrier_choice!='No Selection') and (numflightssing
     finaldata = finaldata.sort_values('Load Factor (%)', ascending=True)
     finaldata['Load Factor (%)'] = finaldata['Load Factor (%)'].astype(int)
     st.table(finaldata.assign(hack='').set_index('hack'))
-    col1, col2 = st.columns(2)
+    st.image('CarrierFig.jpg', use_column_width=True)
+    # col1, col2 = st.columns(2)
     image_hyperlink = 'http://www.gcmap.com/map?P='+origin_choice+'-'+dest_choice+'&MS=bm&MR=540&MX=540x540&PM=b:disc7%2b%22%25t%25+%28N%22'
-    col1.image(image_hyperlink, use_column_width=True)
-    col1.write('Map source : www.gcmap.com')
-    col2.image('CarrierFig.jpg', use_column_width=True)
+    st.image(image_hyperlink, width=300)
+    st.write('Map source : www.gcmap.com')
+    # col1.image(image_hyperlink, use_column_width=True)
+    # col1.write('Map source : www.gcmap.com')
+    # col2.image('CarrierFig.jpg', use_column_width=True)
 else:
     X = encoder.transform(allcarrierdata)
     planetypes = pd.read_csv('L_AIRCRAFT_TYPE.csv')
@@ -133,8 +137,11 @@ else:
     finaldata = finaldata.sort_values('Load Factor (%)', ascending=True)
     finaldata['Load Factor (%)'] = finaldata['Load Factor (%)'].astype(int)
     st.table(finaldata.assign(hack='').set_index('hack'))
-    col1, col2 = st.columns(2)
+    st.image('CarrierFig.jpg', use_column_width=True)
     image_hyperlink = 'http://www.gcmap.com/map?P='+origin_choice+'-'+dest_choice+'&MS=bm&MR=540&MX=540x540&PM=b:disc7%2b%22%25t%25+%28N%22'
-    col1.image(image_hyperlink, use_column_width=True)
-    col1.write('Map source : www.gcmap.com')
-    col2.image('CarrierFig.jpg', use_column_width=True)
+    st.image(image_hyperlink, width = 300)
+    st.write('Map source : www.gcmap.com')
+    # col1, col2 = st.columns(2)
+    # col1.image(image_hyperlink, use_column_width=True)
+    # col1.write('Map source : www.gcmap.com')
+    # col2.image('CarrierFig.jpg', use_column_width=True)
