@@ -13,6 +13,8 @@ month of flight, and (optionally) the carrier and we will let you know how full 
 """)
 
 def plotcarriergraph(allcarrierdata):
+    from matplotlib.ticker import MaxNLocator
+
     xvals=[]
     yvals=[]
     carriers = allcarrierdata['Carrier'].unique()
@@ -21,13 +23,15 @@ def plotcarriergraph(allcarrierdata):
         datasubset = allcarrierdata[allcarrierdata['Carrier']==currentcarrier]
         for carriervalue in range(datasubset.shape[0]):
             xvals.append(carriernum+0.5)
-            yvals.append(datasubset.iloc[carriervalue]['Load Factor (%)'])
+            yvals.append(round(datasubset.iloc[carriervalue]['Load Factor (%)']))
     fig = plt.figure(figsize=(6,6))
     plt.plot(xvals, yvals, 'xr')
     plt.ylabel("Fullness (%)", fontsize=14)
     plt.title("Fullness of all possible flights found on this route \n", fontsize=20)
     plt.xlim(0, len(carriers))
-    plt.xticks(np.arange(0.5,len(carriers)+0.5), carriers, rotation=90, fontsize=12)
+    plt.xticks(np.arange(0.5,len(carriers)+0.5), carriers, rotation=60, fontsize=12, ha="right")
+    ax = fig.gca()
+    ax.yaxis.set_major_locator(MaxNLocator(integer=True))
     fig.savefig('CarrierFig.jpg', dpi=300, bbox_inches='tight')    
     return 0
 
@@ -74,36 +78,37 @@ else:
              carrier_choice,'.')
 
 encoder = pickle.load(open('OneHotEncoder.pkl', 'rb'))
-rfr = pickle.load(open('RFR_Model.pkl', 'rb'))
+rfr = pickle.load(open('Load_Factor_SVR_Model.pkl', 'rb'))
 
-if numflights == 0:
+# No flights found at all
+if numflights == 0:  
     image_hyperlink = 'http://www.gcmap.com/map?P='+origin_choice+'-'+dest_choice+'&MS=bm&MR=540&MX=540x540&PM=b:disc7%2b%22%25t%25+%28N%22'
     st.image(image_hyperlink, use_column_width=True)
     st.write('Map source : www.gcmap.com')
+# Found flights but none on carrier selected
 elif ((numflights != 0) and (carrier_choice!='No Selection') and (numflightssinglecarrier==0)):
     X = encoder.transform(allcarrierdata)
     planetypes = pd.read_csv('L_AIRCRAFT_TYPE.csv')
     allcarrierdata = allcarrierdata.merge(planetypes,how='left',left_on='AIRCRAFT_TYPE',right_on='Code')
     allcarrierdata['Load Factor (%)'] = rfr.predict(X)
-    allcarrierdata['Load Factor (%)']=round(allcarrierdata['Load Factor (%)'],5)
+    # # allcarrierdata['Load Factor (%)']=round(allcarrierdata['Load Factor (%)'],5)
+    # allcarrierdata['Load Factor (%)']=round(allcarrierdata['Load Factor (%)'],1)
     allcarrierdata = allcarrierdata.rename(columns={"UNIQUE_CARRIER_NAME":"Carrier",\
                                                     "Description": "Aircraft Type",\
                                                     "DEPARTURES_SCHEDULED": "No. of Flights"})
     plotcarriergraph(allcarrierdata)
     st.image('CarrierFig.jpg', use_column_width=True)
-    # col1, col2 = st.columns(2)
     image_hyperlink = 'http://www.gcmap.com/map?P='+origin_choice+'-'+dest_choice+'&MS=bm&MR=540&MX=540x540&PM=b:disc7%2b%22%25t%25+%28N%22'
     st.image(image_hyperlink, width=300)
     st.write('Map source : www.gcmap.com')
-    # col1.image(image_hyperlink, use_column_width=True)
-    # col1.write('Map source : www.gcmap.com')
-    # col2.image('CarrierFig.jpg', use_column_width=True)
+# Found flights including some on selected carrier
 elif ((numflights != 0) and (carrier_choice!='No Selection') and (numflightssinglecarrier!=0)):
     X = encoder.transform(allcarrierdata)
     planetypes = pd.read_csv('L_AIRCRAFT_TYPE.csv')
     allcarrierdata = allcarrierdata.merge(planetypes,how='left',left_on='AIRCRAFT_TYPE',right_on='Code')
     allcarrierdata['Load Factor (%)'] = rfr.predict(X)
-    allcarrierdata['Load Factor (%)']=round(allcarrierdata['Load Factor (%)'],5)
+    # # allcarrierdata['Load Factor (%)']=round(allcarrierdata['Load Factor (%)'],5)
+    # allcarrierdata['Load Factor (%)']=round(allcarrierdata['Load Factor (%)'],1)
     allcarrierdata = allcarrierdata.rename(columns={"UNIQUE_CARRIER_NAME":"Carrier",\
                                                     "Description": "Aircraft Type",\
                                                     "DEPARTURES_SCHEDULED": "No. of Flights"})
@@ -112,22 +117,25 @@ elif ((numflights != 0) and (carrier_choice!='No Selection') and (numflightssing
     finaldata = finaldata[['Carrier','Aircraft Type','No. of Flights','Load Factor (%)']]
     finaldata['No. of Flights'] = finaldata['No. of Flights'].astype(int)
     finaldata = finaldata.sort_values('Load Factor (%)', ascending=True)
-    finaldata['Load Factor (%)'] = finaldata['Load Factor (%)'].astype(int)
+    finaldata['Load Factor (%)'] = round(finaldata['Load Factor (%)']).astype(int)
     st.table(finaldata.assign(hack='').set_index('hack'))
     st.image('CarrierFig.jpg', use_column_width=True)
-    # col1, col2 = st.columns(2)
     image_hyperlink = 'http://www.gcmap.com/map?P='+origin_choice+'-'+dest_choice+'&MS=bm&MR=540&MX=540x540&PM=b:disc7%2b%22%25t%25+%28N%22'
-    st.image(image_hyperlink, width=300)
-    st.write('Map source : www.gcmap.com')
-    # col1.image(image_hyperlink, use_column_width=True)
-    # col1.write('Map source : www.gcmap.com')
-    # col2.image('CarrierFig.jpg', use_column_width=True)
+    col1, col2, col3 = st.columns(3)
+    col1.write('')
+    col2.image(image_hyperlink, use_column_width=True)
+    col2.write('Map source : www.gcmap.com')
+    col3.write('')
+    # st.image(image_hyperlink, width=300)
+    # st.write('Map source : www.gcmap.com')
+# Found flights and no specific carriers selected
 else:
     X = encoder.transform(allcarrierdata)
     planetypes = pd.read_csv('L_AIRCRAFT_TYPE.csv')
     allcarrierdata = allcarrierdata.merge(planetypes,how='left',left_on='AIRCRAFT_TYPE',right_on='Code')
     allcarrierdata['Load Factor (%)'] = rfr.predict(X)
-    allcarrierdata['Load Factor (%)']=round(allcarrierdata['Load Factor (%)'],5)
+    # # allcarrierdata['Load Factor (%)']=round(allcarrierdata['Load Factor (%)'],5)
+    # allcarrierdata['Load Factor (%)']=round(allcarrierdata['Load Factor (%)'],1)
     allcarrierdata = allcarrierdata.rename(columns={"UNIQUE_CARRIER_NAME":"Carrier",\
                                                     "Description": "Aircraft Type",\
                                                     "DEPARTURES_SCHEDULED": "No. of Flights"})
@@ -135,13 +143,17 @@ else:
     finaldata = allcarrierdata[['Carrier','Aircraft Type','No. of Flights','Load Factor (%)']]
     finaldata['No. of Flights'] = finaldata['No. of Flights'].astype(int)
     finaldata = finaldata.sort_values('Load Factor (%)', ascending=True)
-    finaldata['Load Factor (%)'] = finaldata['Load Factor (%)'].astype(int)
+    finaldata['Load Factor (%)'] = round(finaldata['Load Factor (%)']).astype(int)
     st.table(finaldata.assign(hack='').set_index('hack'))
     st.image('CarrierFig.jpg', use_column_width=True)
     image_hyperlink = 'http://www.gcmap.com/map?P='+origin_choice+'-'+dest_choice+'&MS=bm&MR=540&MX=540x540&PM=b:disc7%2b%22%25t%25+%28N%22'
-    st.image(image_hyperlink, width = 300)
-    st.write('Map source : www.gcmap.com')
-    # col1, col2 = st.columns(2)
+    # st.image(image_hyperlink, width = 300)
+    # st.write('Map source : www.gcmap.com')
+    col1, col2, col3 = st.columns(3)
+    col1.write('')
+    col2.image(image_hyperlink, use_column_width=True)
+    col2.write('Map source : www.gcmap.com')
+    col3.write('')
     # col1.image(image_hyperlink, use_column_width=True)
     # col1.write('Map source : www.gcmap.com')
     # col2.image('CarrierFig.jpg', use_column_width=True)
