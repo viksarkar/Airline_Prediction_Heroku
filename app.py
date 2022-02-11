@@ -4,7 +4,7 @@ import numpy as np
 import pickle
 import matplotlib.pyplot as plt
 import datetime
-
+import requests
 
 st.write("""
 ## Airline Fullness (Load Factor) Prediction App
@@ -80,10 +80,17 @@ else:
 encoder = pickle.load(open('OneHotEncoder.pkl', 'rb'))
 rfr = pickle.load(open('Load_Factor_SVR_Model.pkl', 'rb'))
 
+# Get an image of the route
+image_url = 'http://www.gcmap.com/map?P='+origin_choice+'-'+dest_choice+'&MS=bm&MR=540&MX=540x540&PM=b:disc7%2b%22%25t%25+%28N%22'
+img_data = requests.get(image_url).content
+with open('routemap.jpg', 'wb') as handler:
+    handler.write(img_data)
+
 # No flights found at all
 if numflights == 0:  
     image_hyperlink = 'http://www.gcmap.com/map?P='+origin_choice+'-'+dest_choice+'&MS=bm&MR=540&MX=540x540&PM=b:disc7%2b%22%25t%25+%28N%22'
-    st.image(image_hyperlink, use_column_width=True)
+    # st.image(image_hyperlink, use_column_width=True)
+    st.image('routemap.jpg', use_column_width=True)
     st.write('Map source : www.gcmap.com')
 # Found flights but none on carrier selected
 elif ((numflights != 0) and (carrier_choice!='No Selection') and (numflightssinglecarrier==0)):
@@ -99,7 +106,8 @@ elif ((numflights != 0) and (carrier_choice!='No Selection') and (numflightssing
     plotcarriergraph(allcarrierdata)
     st.image('CarrierFig.jpg', use_column_width=True)
     image_hyperlink = 'http://www.gcmap.com/map?P='+origin_choice+'-'+dest_choice+'&MS=bm&MR=540&MX=540x540&PM=b:disc7%2b%22%25t%25+%28N%22'
-    st.image(image_hyperlink, width=300)
+    # st.image(image_hyperlink, width=300)
+    st.image('routemap.jpg', use_column_width=True)
     st.write('Map source : www.gcmap.com')
 # Found flights including some on selected carrier
 elif ((numflights != 0) and (carrier_choice!='No Selection') and (numflightssinglecarrier!=0)):
@@ -123,7 +131,8 @@ elif ((numflights != 0) and (carrier_choice!='No Selection') and (numflightssing
     image_hyperlink = 'http://www.gcmap.com/map?P='+origin_choice+'-'+dest_choice+'&MS=bm&MR=540&MX=540x540&PM=b:disc7%2b%22%25t%25+%28N%22'
     col1, col2, col3 = st.columns(3)
     col1.write('')
-    col2.image(image_hyperlink, use_column_width=True)
+    col2.image('routemap.jpg', use_column_width=True)
+    # col2.image(image_hyperlink, use_column_width=True)
     col2.write('Map source : www.gcmap.com')
     col3.write('')
     # st.image(image_hyperlink, width=300)
@@ -151,9 +160,7 @@ else:
     # st.write('Map source : www.gcmap.com')
     col1, col2, col3 = st.columns(3)
     col1.write('')
-    col2.image(image_hyperlink, use_column_width=True)
+    col2.image('routemap.jpg', use_column_width=True)
+    # col2.image(image_hyperlink, use_column_width=True)
     col2.write('Map source : www.gcmap.com')
     col3.write('')
-    # col1.image(image_hyperlink, use_column_width=True)
-    # col1.write('Map source : www.gcmap.com')
-    # col2.image('CarrierFig.jpg', use_column_width=True)
