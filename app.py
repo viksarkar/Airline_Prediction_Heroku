@@ -54,7 +54,7 @@ def plotcarriergraph(allcarrierdata, carrier_choice):
     plt.xticks(np.arange(0.5,len(carriers)+0.5), finalcarriernames, rotation=60, fontsize=12, ha="right")
     ax = fig.gca()
     ax.yaxis.set_major_locator(MaxNLocator(integer=True))
-    fig.savefig('CarrierFig.jpg', dpi=300, bbox_inches='tight') 
+    fig.savefig('CarrierFig.jpg', dpi=300, bbox_inches='tight')
 
 Origins = pd.read_csv("Top_Airports.csv", header=None)
 origin_choice = st.sidebar.selectbox('Select your Origin Airport:', Origins, index=76)
