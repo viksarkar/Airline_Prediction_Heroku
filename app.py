@@ -122,7 +122,7 @@ elif ((numflights != 0) and (carrier_choice!='No Selection') and (numflightssing
     allcarrierdata = allcarrierdata.rename(columns={"UNIQUE_CARRIER_NAME":"Carrier",\
                                                     "Description": "Aircraft Type",\
                                                     "DEPARTURES_SCHEDULED": "No. of Flights"})
-    plotcarriergraph(allcarrierdata)
+    plotcarriergraph(allcarrierdata, carrier_choice)
     st.image('CarrierFig.jpg', use_column_width=True)
     col1, col2, col3 = st.columns(3)
     col1.write('')
@@ -138,7 +138,7 @@ elif ((numflights != 0) and (carrier_choice!='No Selection') and (numflightssing
     allcarrierdata = allcarrierdata.rename(columns={"UNIQUE_CARRIER_NAME":"Carrier",\
                                                     "Description": "Aircraft Type",\
                                                     "DEPARTURES_SCHEDULED": "No. of Flights"})
-    plotcarriergraph(allcarrierdata)
+    plotcarriergraph(allcarrierdata, carrier_choice)
     finaldata = allcarrierdata[allcarrierdata['Carrier']==carrier_choice]
     finaldata = finaldata[['Carrier','Aircraft Type','No. of Flights','Load Factor (%)']]
     finaldata['No. of Flights'] = finaldata['No. of Flights'].astype(int)
@@ -160,7 +160,7 @@ else:
     allcarrierdata = allcarrierdata.rename(columns={"UNIQUE_CARRIER_NAME":"Carrier",\
                                                     "Description": "Aircraft Type",\
                                                     "DEPARTURES_SCHEDULED": "No. of Flights"})
-    plotcarriergraph(allcarrierdata)
+    plotcarriergraph(allcarrierdata, carrier_choice)
     finaldata = allcarrierdata[['Carrier','Aircraft Type','No. of Flights','Load Factor (%)']]
     finaldata['No. of Flights'] = finaldata['No. of Flights'].astype(int)
     finaldata = finaldata.sort_values('Load Factor (%)', ascending=True)
